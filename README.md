@@ -13,7 +13,7 @@ python networks/imdb-sentiment-word-embedding-network.py
 
 ```
 tensorboard --logdir=logs
-open http://192.168.0.10:6006/
+open http://localhost:6006/
 ```
 
 ## Ad-hoc

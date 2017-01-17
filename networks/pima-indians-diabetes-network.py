@@ -9,7 +9,7 @@ dataset = numpy.loadtxt("data/pima-indians-diabetes.csv", delimiter=",")
 X = dataset[:,0:8]
 Y = dataset[:,8]
 
-tensor_board = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True)
+tensor_board = TensorBoard(log_dir='./logs/pima', histogram_freq=0, write_graph=True)
 
 model = Sequential()
 model.add(Dense(12, input_dim=8, init='uniform', activation='relu'))
