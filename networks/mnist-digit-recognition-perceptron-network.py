@@ -3,6 +3,7 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
+from keras.optimizers import SGD
 from keras.utils import np_utils
 import matplotlib.pyplot as plt
 import numpy
@@ -40,14 +41,15 @@ Y_test = np_utils.to_categorical(Y_test)
 num_classes = Y_test.shape[1]
 
 def baseline_model():
+    sgd = SGD(lr=0.006, momentum=0.9, nesterov=True)
+
     model = Sequential()
-    model.add(Dense(num_pixels, input_dim=num_pixels, init='normal', activation='relu'))
-    model.add(Dense(num_classes, init='normal', activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.add(Dense(1000, input_dim=num_pixels, init='uniform', activation='relu'))
+    model.add(Dense(num_classes, init='uniform', activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     return model
 
-tensor_board = TensorBoard(log_dir='./logs/mnist-perceptron', histogram_freq=0, write_graph=True)
 model = baseline_model()
-model.fit(X_train, Y_train, validation_data=(X_test, Y_test), nb_epoch=20, batch_size=200, verbose=2, callbacks=[tensor_board])
+model.fit(X_train, Y_train, validation_data=(X_test, Y_test), nb_epoch=15, batch_size=128, verbose=2)
 scores = model.evaluate(X_test, Y_test, verbose=0)
 print("Baseline error: %.2f%%" % (100 - scores[1] * 100))
