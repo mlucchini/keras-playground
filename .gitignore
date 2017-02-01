@@ -1,3 +1,4 @@
 data/slack-*
 MNIST_data/
 logs/
+**/*.pyc
