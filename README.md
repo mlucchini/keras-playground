@@ -16,6 +16,16 @@ tensorboard --logdir=logs
 open http://localhost:6006/
 ```
 
+## Install OpenCV
+
+```
+brew tap homebrew/science
+brew install opencv
+opencv_version=$(brew list opencv --versions |cut -d " " -f 2)
+ln -s /usr/local/Cellar/opencv/${opencv_version}/lib/python2.7/site-packages/cv.py cv.py
+ln -s /usr/local/Cellar/opencv/${opencv_version}/lib/python2.7/site-packages/cv2.so cv2.so
+```
+
 ## Ad-hoc
 
 ```
