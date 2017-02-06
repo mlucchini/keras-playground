@@ -26,6 +26,22 @@ ln -s /usr/local/Cellar/opencv/${opencv_version}/lib/python2.7/site-packages/cv.
 ln -s /usr/local/Cellar/opencv/${opencv_version}/lib/python2.7/site-packages/cv2.so cv2.so
 ```
 
+## Install Spark and Elephas
+
+```
+brew install apache-spark
+spark_version=$(brew list apache-spark --versions |cut -d " " -f 2)
+
+export SPARK_HOME=/usr/local/Cellar/apache-spark/${spark_version}/libexec
+export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
+
+# pyspark should run properly
+pyspark
+
+# Elephas 0.3 is not compatible with keras 1.2.0
+pip install --user git+ssh://git@github.com/maxpumperla/elephas.git
+```
+
 ## Ad-hoc
 
 ```
