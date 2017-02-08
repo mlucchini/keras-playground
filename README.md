@@ -28,6 +28,8 @@ ln -s /usr/local/Cellar/opencv/${opencv_version}/lib/python2.7/site-packages/cv2
 
 ## Install Spark and Elephas
 
+### Client
+
 ```
 brew install apache-spark
 spark_version=$(brew list apache-spark --versions |cut -d " " -f 2)
@@ -40,6 +42,18 @@ pyspark
 
 # Elephas 0.3 is not compatible with keras 1.2.0
 pip install --user git+ssh://git@github.com/maxpumperla/elephas.git
+```
+
+### Cluster
+
+```
+brew tap homebrew/dupes
+brew install rsync
+# Make sure the PATH's rsync is brew's as the OSX rsync may cause "protocol incompatibility" errors
+git clone https://github.com/amplab/spark-ec2
+cd spark-ec2
+./spark-ec2 --ami="ami-d5fda1b3" --region="eu-west-1" --master-instance-type="m4.xlarge" --instance-type="p2.xlarge" --key-pair="heart-access-keypair" --identity-file="$(echo ~)/.ssh/heart-access-keypair.pem" --slaves="1" launch deeplearning-cluster
+# ./spark-ec2 --region="eu-west-1" destroy deeplearning-cluster
 ```
 
 ## Ad-hoc

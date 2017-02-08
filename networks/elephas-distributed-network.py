@@ -17,7 +17,7 @@ metrics = ['accuracy']
 optimizer = 'adagrad'
 
 
-def main(use_spark):
+def main(master_url):
 
     def generate_data():
         (x_train, y_train), (x_test, y_test) = reuters.load_data(nb_words=max_words, test_split=0.2)
@@ -43,8 +43,8 @@ def main(use_spark):
         return m
 
     def train_model(model, x_train, y_train):
-        conf = TrainerConf(model, epochs, batch_size, train_test_split, optimizer, metrics, 1, 2)
-        trainer = DistributedTrainer(conf) if use_spark else LocalTrainer(conf)
+        conf = TrainerConf(model, epochs, batch_size, train_test_split, optimizer, metrics, 1, 2, master_url)
+        trainer = DistributedTrainer(conf) if master_url else LocalTrainer(conf)
         trainer.fit(x_train, y_train)
 
     X_train, Y_train, X_test, Y_test, nb_classes = generate_data()
@@ -57,5 +57,5 @@ def main(use_spark):
     print('Test accuracy: %1.4f' % score[1])
 
 if __name__ == "__main__":
-    use_spark = len(sys.argv) > 1 and sys.argv[1] == 'spark'
-    main(use_spark)
+    master_url = sys.argv[1] if len(sys.argv) > 1 else None
+    main(master_url)
