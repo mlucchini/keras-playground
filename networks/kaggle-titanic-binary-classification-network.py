@@ -1,56 +1,58 @@
+import math
 import numpy as np
 import pandas as pd
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.models import Sequential
+from sklearn.preprocessing import StandardScaler
 
 np.random.seed(7)
 
-root_path = '../data/kaggle/titanic'
+# Submitted on https://www.kaggle.com/marclucchini/titanic/keras-nn
+# root_path = '../input'
+root_path = 'data/kaggle/titanic'
 
 
 def get_data(filepath):
     df = pd.read_csv(filepath)
-    df = normalise_data(df)
-    x = df.values[:, [2, 4, 5, 6, 7, 9, 10, 11]]
-    y = df.values[:, 1]
-    return x, y
+    return get_data_sets(df)
 
 
-def get_test_data(x_filepath, y_filepath):
-    x_df = pd.read_csv(x_filepath)
-    y_df = pd.read_csv(y_filepath)
-    x_df = normalise_data(x_df)
-    x = x_df.values[:, [1, 3, 4, 5, 6, 8, 9, 10]]
-    y = y_df.values[:, 1]
-    return x, y
-
-
-def normalise_data(x):
-    x['Sex'] = x['Sex'].apply(lambda x: 0 if x == 'male' else 1)
-    x['Age'] = x['Age'].apply(lambda x: x / 100)
-    x['Cabin'] = x['Cabin'].apply(lambda x: ord(x[0]) if isinstance(x, basestring) and len(x) > 0 else 0)
-    x['Embarked'] = x['Embarked'].apply(lambda x: 0 if x == 'C' else 1 if x == 'Q' else 2)
-    return x
+def get_data_sets(df):
+    df['Sex'] = df['Sex'].apply(lambda s: 0 if s == 'male' else 1)
+    df['Age'] = df['Age'].apply(lambda a: df['Age'].median() if math.isnan(a) else a)
+    features = ['Sex', 'Age']
+    x = StandardScaler().fit_transform(df[features].values)
+    y = []
+    try:
+        y = pd.get_dummies(df['Survived']).values
+    finally:
+        return x, y
 
 
 def get_model(x):
-    nb_inputs = x.shape[1]
     m = Sequential()
-    m.add(Dense(nb_inputs * 10, input_dim=nb_inputs, init='uniform', activation='relu'))
-    m.add(Dropout(0.2))
-    m.add(Dense(nb_inputs * 3, init='uniform', activation='relu'))
-    m.add(Dropout(0.2))
-    m.add(Dense(1, init='uniform', activation='sigmoid'))
+    m.add(Dense(input_dim=x.shape[1], output_dim=50, activation='relu'))
+    m.add(Dropout(0.3))
+    m.add(Dense(output_dim=50, activation='relu'))
+    m.add(Dropout(0.3))
+    m.add(Dense(output_dim=2, activation='softmax'))
     m.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(m.summary())
     return m
 
 X, Y = get_data(root_path + '/train.csv')
-X_test, Y_test = get_test_data(root_path + '/test.csv', root_path + '/gender_submission.csv')
-model = get_model(X)
+X_test, Y_test = get_data(root_path + '/test.csv')
 
-model.fit(X, Y, nb_epoch=100, batch_size=10, verbose=1)
+model = get_model(X)
+model.fit(X, Y, nb_epoch=10, batch_size=10, verbose=1)
+
+predictions = model.predict(X_test, batch_size=10)
+survived = [int(round(p)) for p in predictions[:, 1]]
+
+df = pd.read_csv(root_path + '/test.csv')
+passenger_ids = df['PassengerId']
+submission = pd.DataFrame({'PassengerId': passenger_ids, 'Survived': survived})
+submission.to_csv(root_path + '/stacking_submission.csv', index=False)
 
 scores = model.evaluate(X, Y, batch_size=10)
-print("%s: %.2f%%" % (model.metrics_names[1], scores[1] * 100))
+print("\n\nAccuracy: %.2f%%" % (scores[1] * 100))
