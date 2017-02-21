@@ -46,6 +46,7 @@ def get_or_create_w2v_model(sentences):
     if os.path.exists(word2vec_file_name):
         print('Loading existing word2vec...')
         w2v_model = Word2Vec.load(word2vec_file_name)
+        Word2Vec.load_word2vec_format(authors)
     else:
         print('Creating word2vec model...')
         w2v_model = Word2Vec(sentences, size=num_features, min_count=1, window=10, workers=cpu_count())
