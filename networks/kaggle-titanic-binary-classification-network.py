@@ -21,7 +21,7 @@ def get_data(filepath):
 def get_data_sets(df):
     df['Sex'] = df['Sex'].apply(lambda s: 0 if s == 'male' else 1)
     df['Age'] = df['Age'].apply(lambda a: df['Age'].median() if math.isnan(a) else a)
-    features = ['Sex', 'Age']
+    features = ['Pclass', 'Sex', 'Age', 'SibSp']
     x = StandardScaler().fit_transform(df[features].values)
     y = []
     try:
