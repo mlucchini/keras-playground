@@ -19,13 +19,13 @@ def get_data(filepath):
 
 
 def get_data_sets(df):
-    df['Sex'] = df['Sex'].apply(lambda s: 0 if s == 'male' else 1)
-    df['Age'] = df['Age'].apply(lambda a: df['Age'].median() if math.isnan(a) else a)
+    df.Sex = pd.Series(np.where(df.Sex == 'male', 1, 0))
+    df.Age = df.Age.fillna(df.Age.median())
     features = ['Pclass', 'Sex', 'Age', 'SibSp']
     x = StandardScaler().fit_transform(df[features].values)
     y = []
     try:
-        y = pd.get_dummies(df['Survived']).values
+        y = pd.get_dummies(df.Survived).values
     finally:
         return x, y
 
@@ -50,7 +50,7 @@ predictions = model.predict(X_test, batch_size=10)
 survived = [int(round(p)) for p in predictions[:, 1]]
 
 df = pd.read_csv(root_path + '/test.csv')
-passenger_ids = df['PassengerId']
+passenger_ids = df.PassengerId
 submission = pd.DataFrame({'PassengerId': passenger_ids, 'Survived': survived})
 submission.to_csv(root_path + '/stacking_submission.csv', index=False)
 
